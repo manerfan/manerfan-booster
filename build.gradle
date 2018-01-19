@@ -1,0 +1,117 @@
+version = '1.0.0'
+description = 'spring boot starters'
+
+buildscript {
+    ext {
+        springBootVersion = '2.0.+'
+        kotlinVersion = '1.2.20'
+        dokkaVersion = '0.9.+'
+        junitVersion = '5.0.2'
+    }
+
+    repositories {
+        mavenLocal()
+        maven {
+            name 'aliyun maven central'
+            url 'http://maven.aliyun.com/nexus/content/groups/public'
+        }
+        maven {
+            name "spring repo milestone"
+            url "https://repo.spring.io/milestone"
+        }
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+    }
+}
+
+apply plugin: 'idea'
+
+idea {
+    project {
+        languageLevel = 1.8
+    }
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+configure(subprojects) {
+    group = 'com.manerfan.springboot'
+
+    ext {
+        gradleScriptDir = "${rootProject.projectDir}/gradle"
+    }
+
+    apply from: "${gradleScriptDir}/docs.gradle"
+
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    apply plugin: 'kotlin'
+    apply plugin: 'kotlin-spring'
+
+    apply plugin: 'org.junit.platform.gradle.plugin'
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    repositories {
+        mavenLocal()
+        maven {
+            name 'aliyun maven central'
+            url 'http://maven.aliyun.com/nexus/content/groups/public'
+        }
+        maven {
+            name "spring repo milestone"
+            url "https://repo.spring.io/milestone"
+        }
+        mavenCentral()
+        jcenter()
+    }
+
+    // apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+    dependencyManagement {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+        }
+    }
+
+    dependencies {
+        implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+        testCompile "org.springframework.boot:spring-boot-starter-test"
+        testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+        testCompile "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    }
+
+    compileJava.dependsOn(processResources)
+
+    [compileJava, javadoc, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    test {
+        forkEvery = 5
+        maxParallelForks = Runtime.runtime.availableProcessors() / 2
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2'
+}

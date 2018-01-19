@@ -1,0 +1,3 @@
+rootProject.name = 'manerfan-spring-boot-starters'
+include 'manerfan-springboot-starter-ratelimiter'
+
