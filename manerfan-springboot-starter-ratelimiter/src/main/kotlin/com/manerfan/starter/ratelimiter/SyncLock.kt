@@ -76,8 +76,9 @@ class SyncLock(
 ) {
     private val logger = LoggerFactory.getLogger(SyncLock::class.java)
 
-    private val value = "Sync Lock for $key"
-    private val waitPer: Long = 10
+    private val waitMillisPer: Long = 10
+
+    private val value: String get() = "${Thread.currentThread().id}-${Thread.currentThread().name}"
 
     /**
      * 尝试获取锁（立即返回）
@@ -112,8 +113,8 @@ class SyncLock(
         var waitAlready: Long = 0
 
         while (stringRedisTemplate.opsForValue().setIfAbsent(key, value) != true && waitAlready < waitMax) {
-            Thread.sleep(waitPer)
-            waitAlready += waitPer
+            Thread.sleep(waitMillisPer)
+            waitAlready += waitMillisPer
         }
 
         if (waitAlready < waitMax) {
@@ -136,8 +137,8 @@ class SyncLock(
         var waitAlready: Long = 0
 
         while (stringRedisTemplate.opsForValue().setIfAbsent(key, value) != true && waitAlready < waitMax) {
-            Thread.sleep(waitPer)
-            waitAlready += waitPer
+            Thread.sleep(waitMillisPer)
+            waitAlready += waitMillisPer
         }
 
         // stringRedisTemplate.expire(key, expire, TimeUnit.SECONDS)
@@ -153,7 +154,11 @@ class SyncLock(
      * @see [tryLock]
      */
     fun unLock() {
-        stringRedisTemplate.delete(key)
+        stringRedisTemplate.opsForValue()[key]?.let {
+            if (it == value) {
+                stringRedisTemplate.delete(key)
+            }
+        }
     }
 }
 
