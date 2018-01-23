@@ -170,7 +170,7 @@ class SyncLock(
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ASyncLock(
+annotation class SyncLockable(
         val key: String,
         val expire: Long = 10
 )
@@ -187,9 +187,9 @@ class SyncLockHandle {
     /**
      * 在方法上执行同步锁
      */
-    @Around("@annotation(syncLock)")
-    fun syncLock(jp: ProceedingJoinPoint, syncLock: ASyncLock): Any? {
-        val lock = syncLockFactory.build(syncLock.key, syncLock.expire)
+    @Around("@annotation(syncLockable)")
+    fun syncLock(jp: ProceedingJoinPoint, syncLockable: SyncLockable): Any? {
+        val lock = syncLockFactory.build(syncLockable.key, syncLockable.expire)
 
         try {
             lock.lock()

@@ -25,7 +25,8 @@ import org.springframework.context.annotation.Configuration
  */
 
 /**
- *
+ * 1. 基于Redis的分布式锁
+ * 2. 基于Redis的分布式流量控制
  */
 @Configuration
 @ComponentScan("com.manerfan.starter.ratelimiter")

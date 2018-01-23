@@ -62,7 +62,7 @@ class SyncLockTest {
         }
     }
 
-    @DisplayName("ASyncLock注解测试")
+    @DisplayName("SyncLockable注解测试")
     @Test
     fun annotationTest() {
         arrayOf(2000L, 5000L, 3000L, 4000L).map { sleep ->
@@ -147,7 +147,7 @@ class AnnotationTest {
     var latestRun: Long = System.currentTimeMillis()
     var latestSleep: Long = 0
 
-    @ASyncLock("lock:test:annotation", 10)
+    @SyncLockable("lock:test:annotation", 10)
     fun lock(sleep: Long) {
         Assertions.assertTrue(latestRun + latestSleep < System.currentTimeMillis())
 
