@@ -1,3 +1,16 @@
 rootProject.name = 'manerfan-spring-boot-starters'
-include 'manerfan-springboot-starter-ratelimiter'
 
+FileTree buildFiles = fileTree(rootDir) {
+    include "**/*.gradle"
+    exclude '**/gradle', 'settings.gradle', '/build.gradle'
+}
+
+String rootDirPath = rootDir.absolutePath + File.separator
+buildFiles.each { File buildFile ->
+    if (buildFile.name == 'build.gradle') {
+        String buildFilePath = buildFile.parentFile.absolutePath
+        String projectPath = buildFilePath.replace(rootDirPath, '').replaceAll(File.separator, ':')
+        include projectPath
+        print "detect module ${projectPath}"
+    }
+}
