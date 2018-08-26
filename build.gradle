@@ -1,19 +1,20 @@
-version = '1.0.0'
-description = 'spring boot starters'
+version = "1.0.0"
+description = "spring boot starters"
 
 buildscript {
     ext {
-        springBootVersion = '2.0.+'
-        kotlinVersion = '1.2.20'
-        dokkaVersion = '0.9.+'
-        junitVersion = '5.0.2'
+        springBootVersion = "2.0.4.RELEASE"
+        kotlinVersion = "1.2.60"
+        dokkaVersion = "0.9.+"
+        junitVersion = "5.0.2"
+        jdkVersion = "1.8"
     }
 
     repositories {
         mavenLocal()
         maven {
-            name 'aliyun maven central'
-            url 'http://maven.aliyun.com/nexus/content/groups/public'
+            name "aliyun maven central"
+            url "http://maven.aliyun.com/nexus/content/groups/public"
         }
         maven {
             name "spring repo milestone"
@@ -28,15 +29,15 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaVersion"
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.2"
     }
 }
 
-apply plugin: 'idea'
+apply plugin: "idea"
 
 idea {
     project {
-        languageLevel = 1.8
+        languageLevel = "$jdkVersion"
     }
     module {
         downloadJavadoc = true
@@ -45,7 +46,7 @@ idea {
 }
 
 configure(subprojects) {
-    group = 'com.manerfan.springboot'
+    group = "com.manerfan.springboot"
 
     ext {
         gradleScriptDir = "${rootProject.projectDir}/gradle"
@@ -53,29 +54,29 @@ configure(subprojects) {
 
     apply from: "${gradleScriptDir}/docs.gradle"
 
-    apply plugin: 'java'
-    apply plugin: 'java-library'
+    apply plugin: "java"
+    apply plugin: "java-library"
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = "$jdkVersion"
+    targetCompatibility = "$jdkVersion"
 
-    apply plugin: 'kotlin'
-    apply plugin: 'kotlin-spring'
+    apply plugin: "kotlin"
+    apply plugin: "kotlin-spring"
 
-    apply plugin: 'org.junit.platform.gradle.plugin'
+    apply plugin: "org.junit.platform.gradle.plugin"
 
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "$jdkVersion"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "$jdkVersion"
     }
 
     repositories {
         mavenLocal()
         maven {
-            name 'aliyun maven central'
-            url 'http://maven.aliyun.com/nexus/content/groups/public'
+            name "aliyun maven central"
+            url "http://maven.aliyun.com/nexus/content/groups/public"
         }
         maven {
             name "spring repo milestone"
@@ -95,7 +96,7 @@ configure(subprojects) {
 
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
         testCompile "org.springframework.boot:spring-boot-starter-test"
         testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
@@ -104,7 +105,7 @@ configure(subprojects) {
 
     compileJava.dependsOn(processResources)
 
-    [compileJava, javadoc, compileTestJava]*.options*.encoding = 'UTF-8'
+    [compileJava, javadoc, compileTestJava]*.options*.encoding = "UTF-8"
 
     test {
         forkEvery = 5
@@ -113,5 +114,5 @@ configure(subprojects) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.2'
+    gradleVersion = "4.2"
 }
