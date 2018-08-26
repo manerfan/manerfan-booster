@@ -1,13 +1,38 @@
+/*
+ * ManerFan(http://manerfan.com). All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.manerfan.starter.json5
 
 import java.lang.RuntimeException
+import java.util.function.BiFunction
+import java.util.function.Function
+
+import java.lang.Integer as JInteger
+import java.lang.Long as JLong
 
 typealias ResultType = Map<String, Any?>
 
+/**
+ * json5解析类
+ * [json](https://spec.json5.org)
+ */
 class JsonParser(private val json: String) {
 
     companion object {
-        final val DEFAULT_LIST_KEY = "list"
+        const val DEFAULT_LIST_KEY = "list"
     }
 
     private val NULL = "null"
@@ -24,8 +49,6 @@ class JsonParser(private val json: String) {
     private val ps: Char = 0x2029.toChar()
 
     private val terminals = arrayListOf(lf, cr, cs, ps)
-
-    private val validChars = arrayListOf('"', '\'', '@', '#', '$', '_', '{', '}', ':', '[', ']', ',', '+', '-', '.')
 
     private val maxLen = json.length
     private var index = 0
@@ -186,11 +209,10 @@ class JsonParser(private val json: String) {
      * 忽略注释等字符
      */
     private fun getTokenBegin(): Char {
-        while (index < maxLen - 1) {
+        while (index < maxLen) {
             val c = json[index]
 
             when {
-                c.isDefined() && !c.isWhitespace() -> return c
                 c == '/' -> {
                     // 可能是注释
                     val n = json[index + 1]
@@ -204,6 +226,7 @@ class JsonParser(private val json: String) {
                         }
                     }
                 }
+                c.isDefined() && !c.isWhitespace() -> return c
             }
             index++
         }
@@ -229,7 +252,7 @@ class JsonParser(private val json: String) {
      * 跳到注释尾
      */
     private fun skipToEndComment() {
-        while (index < maxLen - 1) {
+        while (index < maxLen) {
             val c = json[index++]
             val cn = json[index]
             if (c == '*' && cn == '/') {
@@ -240,7 +263,9 @@ class JsonParser(private val json: String) {
 
     /**
      * 提取字面量
-     * null | boolean | nan | number
+     * `null` | `boolean` | `nan` | `number`
+     *
+     * @throws ParseException
      */
     @Throws(ParseException::class)
     private fun extractLiteral(): Any? {
@@ -252,7 +277,7 @@ class JsonParser(private val json: String) {
                 // +出现在首尾,忽略之
                 c == '+' && b.isEmpty() -> index++
                 // 合法字符
-                c.isLetterOrDigit() || c in arrayListOf('.', '+', '-') -> {
+                c.isLetterOrDigit() || c in arrayListOf('.', '+', '-', '_') -> {
                     b.append(c)
                     index++
                 }
@@ -273,7 +298,7 @@ class JsonParser(private val json: String) {
             else -> try {
                 detectNumber(literal)
             } catch (ex: NumberFormatException) {
-                throw ParseException("Invalid literal '$literal' at position $index", index)
+                throw ParseException("Invalid literal '$literal' at position $index", index, ex)
             }
         }
     }
@@ -283,16 +308,19 @@ class JsonParser(private val json: String) {
      *
      * @param literal   字符串
      * @return Integer | Long | BigInteger
+     * @throws NumberFormatException
      */
     @Throws(NumberFormatException::class)
     private fun detectNumber(literal: String): Any {
-        val hasDot = literal.contains('.')
-        val hasE = literal.contains('e')
-        val hasX = literal.contains('x')
+        val liter = literal.toLowerCase().replace("_", "")
+
+        val hasDot = liter.contains('.')
+        val hasE = liter.contains('e')
+        val hasX = liter.contains("0x")
 
         if (hasDot || (hasE && !hasX)) {
             // 包含小数点,或者包含对数e但不包含0x,就认为是double浮点型
-            return literal.toDouble()
+            return liter.toDouble()
         }
 
         // Int.MAX_VALUE 2147483647 10 characters || 0x7FFF_FFFF 8 + 2 = 10 characters
@@ -303,16 +331,53 @@ class JsonParser(private val json: String) {
         // MaxLongLen == 18 for dec or 17 for hex
         // BigInt for else
 
-        val negativeLen = if (literal.startsWith('-')) 1 else 0
+        val negativeLen = if (liter.startsWith('-')) 1 else 0
         val maxIntLen = negativeLen + if (hasX) 9 else 9
         val maxLongLen = negativeLen + if (hasX) 17 else 18
 
-        val len = literal.length
+        val len = liter.length
         return when {
-            len <= maxIntLen -> literal.toInt()
-            len <= maxLongLen -> literal.toLong()
-            else -> literal.toBigInteger()
+            len <= maxIntLen -> decode(liter, BiFunction { nm, radix -> nm.toInt(radix) })
+            len <= maxLongLen -> decode(liter, BiFunction { nm, radix -> nm.toLong(radix) })
+            else -> decode(liter, BiFunction { nm, radix -> nm.toBigInteger(radix) })
         }
+    }
+
+    @Throws(NumberFormatException::class)
+    private fun <R : Number> decode(nm: String, func: BiFunction<String, Int, R>): R {
+        var radix = 10
+        var index = 0
+        var negative = ""
+
+        if (nm.isEmpty()) {
+            throw NumberFormatException("Zero length string")
+        }
+
+        when (nm[0]) {
+            '+' -> index++
+            '-' -> {
+                index++
+                negative = "-"
+            }
+        }
+
+        // Handle radix specifier, if present
+        if (nm.startsWith("0x", index)) {
+            index += 2
+            radix = 16
+        } else if (nm.startsWith("#", index)) {
+            index++
+            radix = 16
+        } else if (nm.startsWith("0", index) && nm.length > 1 + index) {
+            index++
+            radix = 8
+        }
+
+        if (nm.startsWith("-", index) || nm.startsWith("+", index)) {
+            throw NumberFormatException("Sign character in wrong position")
+        }
+
+        return func.apply("$negative${nm.substring(index)}", radix)
     }
 
     /**
@@ -406,4 +471,4 @@ class JsonParser(private val json: String) {
     private fun isLineTerminator(c: Char) = c in terminals
 }
 
-class ParseException(message: String, val position: Int) : RuntimeException(message)
+class ParseException(message: String, val position: Int, cause: Throwable? = null) : RuntimeException(message, cause)

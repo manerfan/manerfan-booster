@@ -27,7 +27,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
+//artifacts {
+//    archives sourcesJar
+//    archives javadocJar
+//}
