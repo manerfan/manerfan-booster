@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
+import java.util.*
 
 @DisplayName("Json5")
 class JsonParserTest {
@@ -121,6 +122,7 @@ line2\nline3
     fun subObjArrayTest() {
         val result = """
             [
+                null,
                 12,
                 [
                     1,
@@ -137,14 +139,94 @@ line2\nline3
                         normal: '
 Hah,
 stupid!
-                        ',
+',
                         escape: 'I can say \x41\x42\x43!'
                     },
-                }
+                    emptyObj: {}, emptyArray: []
+                },
             ]
         """.trimIndent().parseMap()
 
         println(result)
+
+        val array = result[JsonParser.DEFAULT_LIST_KEY] as ArrayList<*>
+
+        Assertions.assertEquals(null, array[0])
+        Assertions.assertEquals(12, array[1])
+
+        Assertions.assertTrue(array[2] is ArrayList<*>)
+        Assertions.assertTrue((array[2] as ArrayList<*>)[1] is Map<*, *>)
+        Assertions.assertTrue(((array[2] as ArrayList<*>)[1] as Map<*, *>).isEmpty())
+
+        Assertions.assertEquals("I can say ABC!", ((array[3] as Map<*, *>)["str"] as Map<*, *>)["escape"])
+
+        Assertions.assertTrue(((array[3] as Map<*, *>)["emptyObj"] as Map<*, *>).isEmpty())
+        Assertions.assertTrue(((array[3] as Map<*, *>)["emptyArray"] as ArrayList<*>).isEmpty())
     }
 
+    @Test
+    @DisplayName("FastJson")
+    fun fastJsonTest() {
+        val result = """
+            {
+                str: 'Hello Json5!',
+                num: -12_345,
+                doubleNum: .3e-2,
+                sub: {
+                    str:
+'
+\u4f60\u597d
+不要闹
+',
+                    array: [123_456_789_123_456_789_123_456, -0xABC_FFFF_FFFF_FFFF_FFFF]
+                }
+            }
+        """.trimIndent().parseObject(Obj::class.java)
+
+        println(result)
+
+        Assertions.assertEquals(Obj(
+                "Hello Json5!",
+                -12_345,
+                0.3e-2,
+                SubObj(
+                        "你好\n不要闹",
+                        arrayOf(
+                                BigInteger("123456789123456789123456"),
+                                BigInteger("-ABCFFFFFFFFFFFFFFFF", 16)
+                        )
+                )
+        ), result)
+
+    }
+}
+
+data class Obj(
+        val str: String,
+        val num: Int,
+        val doubleNum: Double,
+        val sub: SubObj
+)
+
+data class SubObj(
+        val str: String,
+        val array: Array<BigInteger>
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SubObj
+
+        if (str != other.str) return false
+        if (!Arrays.equals(array, other.array)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = str.hashCode()
+        result = 31 * result + Arrays.hashCode(array)
+        return result
+    }
 }

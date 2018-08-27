@@ -18,10 +18,6 @@ package com.manerfan.starter.json5
 
 import java.lang.RuntimeException
 import java.util.function.BiFunction
-import java.util.function.Function
-
-import java.lang.Integer as JInteger
-import java.lang.Long as JLong
 
 typealias ResultType = Map<String, Any?>
 
@@ -362,19 +358,19 @@ class JsonParser(private val json: String) {
         }
 
         // Handle radix specifier, if present
-        if (nm.startsWith("0x", index)) {
-            index += 2
-            radix = 16
-        } else if (nm.startsWith("#", index)) {
-            index++
-            radix = 16
-        } else if (nm.startsWith("0", index) && nm.length > 1 + index) {
-            index++
-            radix = 8
-        }
-
-        if (nm.startsWith("-", index) || nm.startsWith("+", index)) {
-            throw NumberFormatException("Sign character in wrong position")
+        when  {
+            nm.startsWith("0x", index) -> {
+                index += 2
+                radix = 16
+            }
+            nm.startsWith("#", index) -> {
+                index++
+                radix = 16
+            }
+            nm.startsWith("0", index) && nm.length > 1 + index -> {
+                index++
+                radix = 8
+            }
         }
 
         return func.apply("$negative${nm.substring(index)}", radix)
