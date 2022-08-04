@@ -1,0 +1,17 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-11",
+            "path": "/home/admin/applications/dragonwell-11.0.15.11+9-GA/",
+            "default": true
+        }
+    ],
+    "java.jdt.ls.java.home": "/home/admin/applications/dragonwell-17.0.3.0.3+7-GA/",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    }
+}
