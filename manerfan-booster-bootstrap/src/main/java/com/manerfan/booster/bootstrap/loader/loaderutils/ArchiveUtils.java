@@ -20,8 +20,8 @@ import io.vavr.control.Try;
  *     archive 工具
  * </pre>
  *
- * @author manerfan
- * @date 2022/08/03
+ * @author Maner.Fan
+ * @date 2022/8/3
  */
 public class ArchiveUtils {
     /**
@@ -35,6 +35,14 @@ public class ArchiveUtils {
         return fromPath(path, true);
     }
 
+    /**
+     * 从路径 path 构建 archive，并指定是否递归
+     *
+     * @param path      文件/目录 路径
+     * @param recursive 是否递归
+     * @return IOException
+     * @throws IOException
+     */
     public static Archive fromPath(String path, boolean recursive) throws IOException {
         if (Objects.isNull(path) || path.trim().isEmpty()) {
             throw new IllegalStateException("Unable to determine code source archive");
