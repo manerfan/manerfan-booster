@@ -67,21 +67,18 @@ public class RsaCipher implements BaseCipher {
     /**
      * 通过公私钥base64构建
      *
-     * <pre><code>
-     * KeyPairGenerator keyGen
-     *      = KeyPairGenerator.getInstance("RSA");
+     * <pre>
+     *        KeyPairGenerator keyGenJ = KeyPairGenerator.getInstance("RSA");
      *
-     * keyGen.initialize(1024);
-     * KeyPair pair = keyGen.generateKeyPair();
+     *        keyGen.initialize(1024);
+     *        KeyPair pair = keyGen.generateKeyPair();
      *
-     * privateKeyBytes = pair.getPrivate().getEncoded();
-     * privateKeyBase64
-     *      = BASE64_ENCODER.encodeToString(privateKeyBytes);
+     *        privateKeyBytes = pair.getPrivate().getEncoded();
+     *        privateKeyBase64 = BASE64_ENCODER.encodeToString(privateKeyBytes);
      *
-     * publicKeyBytes = pair.getPublic().getEncoded();
-     * publicKeyBase64
-     *      = BASE64_ENCODER.encodeToString(publicKeyBytes);
-     * </code></pre>
+     *        publicKeyBytes = pair.getPublic().getEncoded();
+     *        publicKeyBase64 = BASE64_ENCODER.encodeToString(publicKeyBytes);
+     * </pre>
      *
      * @param privateKeyBase64 私钥base64
      * @param publicKeyBase64  公钥base64

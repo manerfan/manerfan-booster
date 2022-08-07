@@ -1,4 +1,4 @@
-package com.manerfan.booster.core.spring;
+package com.manerfan.booster.core.spring.bind;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

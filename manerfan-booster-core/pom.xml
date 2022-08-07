@@ -111,11 +111,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- http -->
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- vavr tools -->
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>${vavr.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- validation -->

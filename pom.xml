@@ -83,10 +83,12 @@
         <lombok.version>1.18.24</lombok.version>
         <mapstruct.version>1.5.2.Final</mapstruct.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <vavr.version>0.10.4</vavr.version>
         <guava.version>31.1-jre</guava.version>
         <geantyref.version>1.3.4</geantyref.version>
         <validation.version>2.0.1.Final</validation.version>
+        <vavr.version>0.10.4</vavr.version>
+
+        <retrofit.version>2.9.0</retrofit.version>
 
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <commons.io.version>2.11.0</commons.io.version>
@@ -216,6 +218,14 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- http -->
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>retrofit</artifactId>
+                <version>${retrofit.version}</version>
                 <scope>provided</scope>
             </dependency>
 
